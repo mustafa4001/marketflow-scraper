@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: marketflow
+    runtime: docker
+    plan: free            # see README: free tier is memory-limited for Chromium
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8000

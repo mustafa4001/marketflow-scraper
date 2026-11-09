@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MarketFlow — Multi-Marketplace Product Scraper</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">M</div>
+      <div>
+        <h1>MarketFlow</h1>
+        <p class="subtitle">Multi-Marketplace Product Scraper</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="pill pill-muted">API-key-free</span>
+      <span class="pill" id="connPill"><span class="dot" id="connDot"></span><span id="connText">Checking…</span></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- LEFT: configuration -->
+    <section class="panel config">
+      <h2>Scraper Configuration</h2>
+
+      <label class="field-label">Marketplaces</label>
+      <div class="checks">
+        <label class="check"><input type="checkbox" value="ebay" checked /> eBay</label>
+        <label class="check"><input type="checkbox" value="etsy" checked /> Etsy</label>
+        <label class="check"><input type="checkbox" value="amazon" /> Amazon <span class="hint">(often blocked on cloud hosts)</span></label>
+      </div>
+
+      <label class="field-label">Input method</label>
+      <div class="segmented" id="methodTabs">
+        <button data-method="category_url" class="active">Category / Search URL</button>
+        <button data-method="keyword">Keyword</button>
+        <button data-method="product_urls">Product URLs</button>
+      </div>
+
+      <div class="method-pane" data-pane="category_url">
+        <input type="text" id="urlInput" placeholder="https://www.ebay.com/sch/i.html?_nkw=coffee+grinder" />
+      </div>
+      <div class="method-pane hidden" data-pane="keyword">
+        <input type="text" id="keywordInput" placeholder="coffee grinder" />
+        <p class="hint">Builds a public search URL for each selected marketplace.</p>
+      </div>
+      <div class="method-pane hidden" data-pane="product_urls">
+        <textarea id="urlsInput" rows="5" placeholder="One product URL per line"></textarea>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="field-label">Max products</label>
+          <input type="number" id="maxProducts" value="20" min="1" max="500" />
+        </div>
+        <div>
+          <label class="field-label">Max pages</label>
+          <input type="number" id="maxPages" value="3" min="1" max="50" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="startBtn" class="btn btn-primary">Start Scraping</button>
+        <button id="stopBtn" class="btn btn-ghost" disabled>Stop</button>
+      </div>
+      <p class="form-error hidden" id="formError"></p>
+    </section>
+
+    <!-- RIGHT: progress + results -->
+    <section class="main-col">
+      <div class="panel">
+        <h2>Scraping Progress</h2>
+        <div class="progress-grid">
+          <div><span class="k">Marketplace</span><span class="v" id="pMarket">—</span></div>
+          <div><span class="k">Listing page</span><span class="v" id="pPage">0</span></div>
+          <div><span class="k">Discovered</span><span class="v" id="pDiscovered">0</span></div>
+          <div><span class="k">Processed</span><span class="v" id="pProcessed">0</span></div>
+          <div><span class="k">Successful</span><span class="v ok" id="pSuccess">0</span></div>
+          <div><span class="k">Failed</span><span class="v bad" id="pFailed">0</span></div>
+        </div>
+        <div class="statusline"><span class="statusdot" id="statusDot"></span><span id="statusMsg">Idle.</span></div>
+        <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="stat-cards">
+          <div class="stat"><span id="sTotal">0</span><label>Total</label></div>
+          <div class="stat"><span id="sSuccess">0</span><label>Success</label></div>
+          <div class="stat"><span id="sFailed">0</span><label>Failed</label></div>
+          <div class="stat"><span id="sAmazon">0</span><label>Amazon</label></div>
+          <div class="stat"><span id="sEbay">0</span><label>eBay</label></div>
+          <div class="stat"><span id="sEtsy">0</span><label>Etsy</label></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="results-head">
+          <h2>Product Results</h2>
+          <div class="results-tools">
+            <input type="text" id="searchBox" placeholder="Search results…" />
+            <select id="filterMarket">
+              <option value="">All marketplaces</option>
+              <option value="amazon">Amazon</option>
+              <option value="ebay">eBay</option>
+              <option value="etsy">Etsy</option>
+            </select>
+            <select id="sortBy">
+              <option value="">Sort…</option>
+              <option value="price_asc">Price ↑</option>
+              <option value="price_desc">Price ↓</option>
+              <option value="rating_desc">Rating ↓</option>
+            </select>
+            <button class="btn btn-sm" id="clearBtn">Clear</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="resultsTable">
+            <thead>
+              <tr>
+                <th>Image</th><th>Name</th><th>Market</th><th>Price</th>
+                <th>Orig.</th><th>Rating</th><th>Reviews</th><th>Brand</th>
+                <th>URL</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <tr class="empty"><td colspan="11">No products yet. Configure a scrape and press Start.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="export-row">
+          <button class="btn btn-sm" id="exportCsv">Export CSV</button>
+          <button class="btn btn-sm" id="exportJson">Export JSON</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
